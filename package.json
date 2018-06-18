@@ -1,0 +1,16 @@
+{
+  "name": "vidjot-project",
+  "version": "1.0.0",
+  "description": "Video Ideas sharing application",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "Sahil Kapoor",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.16.3",
+    "pug": "^2.0.3"
+  }
+}
