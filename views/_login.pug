@@ -1,0 +1,20 @@
+extends layout.pug
+
+block content
+  .container 
+    div(class="w-100")
+      div(class="loginForm w-100 bg-light p-3")
+        div
+          img(src="/static/icons/logo.png", alt="VidjotIcon")
+          h3(class="text-center") Account Login
+        div
+          form(action="", method="POST")
+            div(class="form-group")
+              label(for="loginEmail") Email
+              input(type="email", class="form-control", id="loginEmail", name="email")
+              small(id="emailHelp" class="form-text text-muted") We'll never share your email with someone else.
+            div(class="form-group")
+              label(for="loginPassword") Password
+              input(type="password", class="form-control", id="loginPassword", name="password")
+            div
+             button(type="submit" class="btn btn-primary") Submit

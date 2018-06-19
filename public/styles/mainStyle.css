@@ -1,0 +1,36 @@
+
+/* ===================
+  "/login" route styles
+  =====================*/
+
+.loginForm{
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.loginForm img{
+  max-width: 100px;
+  display: block;
+  margin : 0 auto;
+}
+
+
+/* MEDIA QUERIES */
+
+@media screen and (min-width : 576px){
+  .loginForm img{
+    max-width: 150px;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+

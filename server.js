@@ -12,11 +12,15 @@ app.set("views", "./views");
 app.use("/static", express.static("./public"));
 
 app.get("/", (request, response)=>{
-  response.render("home");
+  response.render("_home");
 });
 
 app.get("/about", (request, response)=>{
   response.send("about");
+});
+
+app.get("/login", (request, response, next)=>{
+  response.render("_login");
 });
 
 app.listen(port, hostName, ()=>{
