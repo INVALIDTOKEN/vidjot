@@ -8,22 +8,15 @@ const hostName = "127.0.0.1";
 app.set("view engine", "pug");
 app.set("views", "./views");
 
-app.use("/", (request, response, next)=>{
-  if(request.method === "POST"){
-    console.log(request.headers);
-    let string = "";
-    request.on("data", (chunk)=>{
-      string += chunk;
-    });
-    request.on("end", ()=>{
-      console.log(string);
-    });
-    next(); 
-  }
+// STATIC SERVER
+app.use("/static", express.static("./public"));
+
+app.get("/", (request, response)=>{
+  response.render("home");
 });
 
-app.post("/", (request, response)=>{
-  response.send("Running");
+app.get("/about", (request, response)=>{
+  response.send("about");
 });
 
 app.listen(port, hostName, ()=>{
