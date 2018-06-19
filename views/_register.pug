@@ -1,0 +1,29 @@
+extends layout.pug
+
+block content
+  .container 
+    div(class="w-100")
+      div(class="loginForm w-100 border p-3")
+        div
+          img(src="/static/icons/logo.png", alt="VidjotIcon")
+          h3(class="text-center") Account Login
+        div
+          form(action="", method="POST")
+            div(class="form-group mb-1")
+              label(for="registerName") Name
+              input(type="text", required="true", autocomplete="name", class="form-control" id="registerName", name="name")
+
+            div(class="form-group mb-1")
+              label(for="registerEmail") Email
+              input(type="email", required="true", autocomplete="email", class="form-control", id="registerEmail", name="email")
+
+            div(class="form-group mb-1")
+              label(for="registerPassword") Password
+              input(type="password", required="true", class="form-control", id="registerPassword", autocomplete="new-password", name="password")
+
+            div(class="form-group mb-1")
+              label(for="registerPasswordConfirm") Confirm Password
+              input(type="password", required="true", autocomplete="new-password", class="form-control",id="registerConfirmPassword")
+
+            div(class="mt-2")
+             button(type="submit" class="btn btn-primary") Submit

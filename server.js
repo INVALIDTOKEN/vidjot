@@ -16,11 +16,15 @@ app.get("/", (request, response)=>{
 });
 
 app.get("/about", (request, response)=>{
-  response.send("about");
+  response.render("_about");
 });
 
 app.get("/login", (request, response, next)=>{
   response.render("_login");
+});
+
+app.get("/register", (request, response)=>{
+  response.render("_register");
 });
 
 app.listen(port, hostName, ()=>{

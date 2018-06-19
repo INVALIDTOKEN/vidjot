@@ -9,7 +9,7 @@
 }
 
 .loginForm img{
-  max-width: 100px;
+  max-width: 50px;
   display: block;
   margin : 0 auto;
 }
@@ -19,7 +19,7 @@
 
 @media screen and (min-width : 576px){
   .loginForm img{
-    max-width: 150px;
+    max-width: 100px;
   }
 }
 
