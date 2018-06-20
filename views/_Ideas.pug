@@ -1,0 +1,9 @@
+extends layout.pug
+
+block content
+  .container
+    div(class="card card-body")
+      h1 Video Ideas
+      p This is a video ideas
+      form(action="/idea/delete", method="DELETE")
+        button(type="submit" class="btn btn-danger") Delete

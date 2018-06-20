@@ -22,10 +22,21 @@ html(lang="en")
               li(class="nav-item about")
                 a(href="/about", class="nav-link") About
             ul(class="navbar-nav", style="margin-left : auto;")
-              li(class="nav-item")
-                a(href="/login", class="nav-link") Login
-              li(class="nav-item")
-                a(href="/register", class="nav-link") Register
+              if loggedIn === true 
+                li(class="nav-list dropdown")
+                  a(href="#" class="nav-link dropdown-toggle" id="navbarDropdownMenuLink", data-toggle="dropdown") Video Ideas
+                  div(class="dropdown-menu")
+                    a(href="/ideas" class="dropdown-item") Ideas
+                    a(href="/ideas/add" class="dropdown-item") Add Ideas
+                  
+                li(class="nav-list")
+                  a(href="/logout", class="nav-link") Logout
+                
+              else 
+                li(class="nav-item")
+                  a(href="/login", class="nav-link") Login
+                li(class="nav-item")
+                  a(href="/register", class="nav-link") Register
                 
     block content
 

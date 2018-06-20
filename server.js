@@ -30,9 +30,13 @@ app.get("/about", (request, response)=>{
   response.render("_about");
 });
 
+// ROUTES FOR LOGINING IN
+
 app.get("/login", (request, response, next)=>{
   response.render("_login");
 });
+
+// ROUTES FOR REGISTERING A USER
 
 app.get("/register", (request, response)=>{
   response.render("_register");
@@ -42,6 +46,21 @@ app.post("/register/submit", (request, response)=>{
   console.log(request.body);
   let newUser = createUser(request.body);
   response.send(newUser);
+});
+
+// ROUTES FOR ADDING IDEA 
+app.get("/ideas/add", (request, response)=>{
+  response.render("_addIdea", {loggedIn : true});
+});
+
+app.post("/ideas/add", (request, response)=>{
+  console.log(request.body);
+  response.redirect("/ideas");
+});
+
+// RENDER ALL THE IDEAS
+app.get("/ideas", (request, response)=>{
+  response.render("_Ideas");
 });
 
 app.listen(port, hostName, ()=>{
