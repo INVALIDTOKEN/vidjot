@@ -9,20 +9,27 @@ const { RegisterUserModel } = require("./mongooseModel/RegisterUserModel.js");
 const { createUser } = require("./mongooseDocument/registerUserDoc.js");
 const { createIdea } = require("./mongooseDocument/ideaDoc");
 const querystring = require("querystring");
+const cookieSession = require("cookie-session");
+const cookieParser = require("cookie-parser");
 const pug = require("pug");
 const app = express();
 const port = 3000;
 const hostName = "127.0.0.1";
 const passport = require("passport");
 
-app.use((request, response, next)=>{
-  if(typeof request.headers.cookie !== undefined){
-    request.cookies = querystring.parse(request.headers.cookie);
-    next();
-  }else{
-    next();
-  }
-});
+app.use(
+  cookieSession(
+    {
+      maxAge : 24*60*60*1000,
+      keys : ["Secret"]
+    }
+  )
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(cookieParser());
+
 
 // SETTING A TEMPLATE ENGINE
 app.set("view engine", "pug");
@@ -78,7 +85,12 @@ app.post("/register/submit", (request, response)=>{
 
 // ROUTES FOR ADDING IDEA 
 app.get("/ideas/add", (request, response)=>{
-  response.render("_addIdea", {loggedIn : true});
+  if(request.user){
+    return response.render("_addIdea", {loggedIn : true});
+  }
+
+  // [TODO] HAVE TO ADD A FLASH MSG HERE
+  response.redirect("/login");
 });
 
 app.post("/ideas/add", (request, response)=>{
@@ -88,7 +100,11 @@ app.post("/ideas/add", (request, response)=>{
 
 // RENDER ALL THE IDEAS
 app.get("/ideas", (request, response)=>{
-  response.render("_Ideas");
+  if(request.user){
+    return response.render("_Ideas", {loggedIn : true});
+  }
+  // [TODO] HAVE TO ADD A FLASH MSG HERE
+  response.redirect("/login");
 });
 
 app.listen(port, hostName, ()=>{
