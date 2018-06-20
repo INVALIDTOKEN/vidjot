@@ -1,3 +1,5 @@
+"use strict";
+
 const querystring = require("querystring");
 
 // convert the data into valid JavaScript object

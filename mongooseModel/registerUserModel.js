@@ -1,35 +1,36 @@
+"use strict";
 
 const mongoose = require("mongoose");
 const validator = require("validator");
 const Schema = mongoose.Schema;
 const ObjectId = Schema.ObjectId;
 
-const registerUserSchema = new Schema({
+const RegisterUserSchema = new Schema({
   name : {
-    type : string,
+    type : String,
     required : true,
     trim : true
   },
   email : {
-    type : string,
+    type : String,
     required : true,
     trim : true,
     validate : {
       validator : value=>validator.isEmail(value),
-      msg : `${value} is not valid`
+      msg : `{value} is not valid`
     }
   },
   password : {
-    type : string,
-    trim : true,
-    minlength : 5,
-    maxlength : 15
+    type : String,
+    trim : true
   }
 });
 
-const registerUserModel = mongoose.model("registerUsers", registerUserSchema);
+const RegisterUserModel = mongoose.model("registerUsers", RegisterUserSchema);
 
-module.exports = { registerUserModel };
+module.exports = { RegisterUserModel };
+
+
 
 
 
