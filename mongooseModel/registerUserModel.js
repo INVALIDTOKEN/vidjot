@@ -18,11 +18,13 @@ const RegisterUserSchema = new Schema({
     validate : {
       validator : value=>validator.isEmail(value),
       msg : `{value} is not valid`
-    }
+    },
+    unique : true
   },
   password : {
     type : String,
-    trim : true
+    trim : true,
+    minlength : 5
   }
 });
 

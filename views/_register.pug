@@ -2,6 +2,9 @@ extends layout.pug
 
 block content
   .container 
+    if flash
+      div(class="alert alert-danger" role="alert")
+        div #{flash}
     div(class="w-100")
       div(class="loginForm w-100 border p-3")
         div

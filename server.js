@@ -1,16 +1,28 @@
 "use strict";
 
 require("./mongooseSetup/mongoooseSetup.js");
+require("./passportConfig/passportConfig.js");
 const mongoose = require("mongoose");
 const express = require("express");
 const { bodyParser } = require("./bodyParser.js");
 const { RegisterUserModel } = require("./mongooseModel/RegisterUserModel.js");
 const { createUser } = require("./mongooseDocument/registerUserDoc.js");
 const { createIdea } = require("./mongooseDocument/ideaDoc");
+const querystring = require("querystring");
 const pug = require("pug");
 const app = express();
 const port = 3000;
 const hostName = "127.0.0.1";
+const passport = require("passport");
+
+app.use((request, response, next)=>{
+  if(typeof request.headers.cookie !== undefined){
+    request.cookies = querystring.parse(request.headers.cookie);
+    next();
+  }else{
+    next();
+  }
+});
 
 // SETTING A TEMPLATE ENGINE
 app.set("view engine", "pug");
@@ -36,6 +48,11 @@ app.get("/login", (request, response, next)=>{
   response.render("_login");
 });
 
+app.post("/login", passport.authenticate("local", {
+  failureRedirect : "/login",
+  successRedirect : "/ideas"
+}));
+
 // ROUTES FOR REGISTERING A USER
 
 app.get("/register", (request, response)=>{
@@ -45,7 +62,18 @@ app.get("/register", (request, response)=>{
 app.post("/register/submit", (request, response)=>{
   console.log(request.body);
   let newUser = createUser(request.body);
-  response.send(newUser);
+  newUser.save()
+  .then((result) => {
+
+    // [TODO] HAVE TO ADD A FLASH MSG HERE
+    response.redirect("/login"); 
+
+  }).catch((err) => {
+    // [TODO] HAVE TO ADD A FLASH MSG HERE
+
+    // When ever there is a problem in registering re-render the "/register" route.
+    response.redirect("/register");
+  });
 });
 
 // ROUTES FOR ADDING IDEA 
