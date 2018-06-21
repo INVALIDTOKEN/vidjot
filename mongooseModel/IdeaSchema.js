@@ -17,7 +17,7 @@ const IdeaSchema = new Schema({
     type : String,
     default : Date.now
   },
-  autheredBy : {
+  writtenBy : {
     type : ObjectId, 
     required : true
   }

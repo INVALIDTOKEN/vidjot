@@ -24,6 +24,7 @@ const custormFlash = require("./requiredFunction/flash.js");
 // LOADING ROUTES
 const { registerUserRoute } = require("./routes/registerUserRoute.js");
 const { loginUserRoute } = require("./routes/loginUserRoute.js");
+const { addIdeaRoute } = require("./routes/addIdeaRoute.js");
 
 const isAuthenticated = function(request, property){
   return (typeof request.user !== "undefined");
@@ -69,20 +70,7 @@ app.use("/register", registerUserRoute);
 app.use("/login", loginUserRoute);
 
 // ROUTES FOR ADDING IDEA 
-app.get("/ideas/add", (request, response)=>{
-  if(isAuthenticated(request)){
-    return response.render("_addIdea", {loggedIn : true});
-  }
-
-  // [COMPLETE] FLASH MESSAGE ADDED
-  response.cookie("flashMessage", custormFlash.createFlashInfo("Sorry you have to login first.", "danger"));
-  response.redirect("/login");
-});
-
-app.post("/ideas/add", (request, response)=>{
-  console.log(request.body);
-  response.redirect("/ideas");
-});
+app.use("/ideas/add", addIdeaRoute);
 
 // RENDER ALL THE IDEAS
 app.get("/ideas", (request, response)=>{
