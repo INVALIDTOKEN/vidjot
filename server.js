@@ -18,13 +18,12 @@ const port = 3000;
 const hostName = "127.0.0.1";
 const passport = require("passport");
 
+// FOR CREATING OR CHECKING CUSTOM FLASH MESSAGES
+const custormFlash = require("./requiredFunction/flash.js");
+
 // LOADING ROUTES
 const { registerUserRoute } = require("./routes/registerUserRoute.js");
 const { loginUserRoute } = require("./routes/loginUserRoute.js");
-
-const flashMessage = function(message, type){
-  return JSON.stringify({ message , type });
-}
 
 const isAuthenticated = function(request, property){
   return (typeof request.user !== "undefined");
@@ -76,7 +75,7 @@ app.get("/ideas/add", (request, response)=>{
   }
 
   // [COMPLETE] FLASH MESSAGE ADDED
-  response.cookie("flashMessage", flashMessage("Sorry you have to login first.", "danger"));
+  response.cookie("flashMessage", custormFlash.createFlashInfo("Sorry you have to login first.", "danger"));
   response.redirect("/login");
 });
 
@@ -89,16 +88,17 @@ app.post("/ideas/add", (request, response)=>{
 app.get("/ideas", (request, response)=>{
 
   if(isAuthenticated(request)){
-    let flash = undefined;
-    if(typeof request.cookies.flashMessage !== "undefined"){
-      flash = JSON.parse(request.cookies.flashMessage);
+    let flashInfo = undefined;
+    let flashMessage = custormFlash.checkCustomFlashMsg(request);
+    if(flashMessage.present){
+      flashInfo = flashMessage.flashInfo;
     }
     response.clearCookie("flashMessage");
-    return response.render("_Ideas", {loggedIn : true, flash });
+    return response.render("_Ideas", {loggedIn : true, flash : flashInfo });
   }
 
   // [COMPLETE] FLASH MESSAGE ADDED
-  response.cookie("flashMessage", flashMessage("Sorry you have to login first.", "danger"));
+  response.cookie("flashMessage", custormFlash.createFlashInfo("Sorry you have to login first.", "danger"));
   response.redirect("/login");
 });
 

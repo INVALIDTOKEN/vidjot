@@ -2,29 +2,22 @@ const express = require("express");
 const mongoose = require("mongoose");
 const passport = require("passport");
 const router = express.Router();
-
-const flashMessage = function(message, type){
-  return JSON.stringify({ message , type });
-}
+const customFlash = require("../requiredFunction/flash.js");
 
 router.get("/", (request, response, next)=>{
   // IF USER IS LOGGEDIN DON'T SHOW
   if(request.user){
-    response.cookie("flashMessage", flashMessage("You have already logged in no need to log in again.", "info"));
+    response.cookie("flashMessage", customFlash.createFlashInfo("You have already logged in no need to log in again.", "info"));
     return response.redirect("/ideas");
   }
 
   // FLASH MESSAGE DEFINED BY PASSPORT
   let pFlash = request.flash("error")[0];
 
-  // FLASH MESSAGE DEFINED BY ME
-  let flashInfo = request.cookies.flashMessage;
+  if(customFlash.checkCustomFlashMsg(request).present){
 
-  if(typeof flashInfo  !== "undefined"){
-
-    flashInfo = JSON.parse(flashInfo);
     response.clearCookie("flashMessage");
-    return response.render("_login", { flash : flashInfo });
+    return response.render("_login", { flash : customFlash.checkCustomFlashMsg(request).flashInfo });
 
   }else if(pFlash !== undefined){
 
