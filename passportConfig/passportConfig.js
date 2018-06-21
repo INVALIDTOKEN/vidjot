@@ -9,12 +9,22 @@ const checkForUser = function(email, password, done){
   .then((document)=>{
     if(document === null){
       console.log("Ya It ran")
-      done(null, false, {message : "Wrong email or password"})
+      let flashInfo = {
+        loggedIn : false,
+        message : "Sorry can't log you in password or email is not correct.",
+        type : "danger"
+      }
+      return done(null, false, {message : JSON.stringify(flashInfo)});
     }
-    done(null, document);
+    return done(null, document);
   })
   .catch((error)=>{
-    done(null, false, {message : "wrong email or password"});
+    let flashInfo = {
+      loggedIn : false,
+      message : "Sorry can't log you in password or email is not correct.",
+      type : "danger"
+    }
+    done(null, false, {message : JSON.stringify(flashInfo)});
   });
 }
 

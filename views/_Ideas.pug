@@ -2,6 +2,9 @@ extends layout.pug
 
 block content
   .container
+    if flash
+      div(class=`alert alert-${flash.type}`, role="alert")
+        div #{flash.message}
     div(class="card card-body")
       h1 Video Ideas
       p This is a video ideas

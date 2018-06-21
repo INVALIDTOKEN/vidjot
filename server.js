@@ -11,6 +11,7 @@ const { createIdea } = require("./mongooseDocument/ideaDoc");
 const querystring = require("querystring");
 const cookieSession = require("cookie-session");
 const cookieParser = require("cookie-parser");
+const flash = require("connect-flash");
 const pug = require("pug");
 const app = express();
 const port = 3000;
@@ -21,11 +22,12 @@ app.use(
   cookieSession(
     {
       maxAge : 24*60*60*1000,
-      keys : ["Secret"]
+      keys : ["kitty kat"]
     }
   )
 );
 
+app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(cookieParser());
@@ -51,15 +53,31 @@ app.get("/about", (request, response)=>{
 // ROUTES FOR LOGINING IN
 
 app.get("/login", (request, response, next)=>{
+  if(request.user){
+    let flashInfo = {
+      message : "You have already logged in no need to log in again.",
+      type : "info"
+    }
+    response.cookie("flashMessage", JSON.stringify(flashInfo));
+    return response.redirect("/ideas");
+  }
+
+  let flash = request.flash("error")[0];
   if(request.cookies.flashMessage){
     let flash = JSON.parse(request.cookies.flashMessage);
     response.clearCookie("flashMessage");
     return response.render("_login", { flash });
+  }else if(flash !== undefined){
+    let flashInfo = JSON.parse(flash);
+    return response.render("_login", { flash : flashInfo });
   }
   response.render("_login");
 });
 
-app.post("/login", passport.authenticate("local"), (request, response)=>{
+app.post("/login", passport.authenticate("local", {
+  failureRedirect : "/login",
+  failureFlash : true
+}),  (request, response)=>{
   response.redirect("/ideas");
 });
 
@@ -80,7 +98,7 @@ app.post("/register/submit", (request, response)=>{
   newUser.save()
   .then((result) => {
 
-    // [TODO] HAVE TO ADD A FLASH MSG HERE
+    // [COMPLETE] FLASH MSG IS DONE
     let flashInfo = {
       registered : true,
       message : "You have been registered now you can login using the same email and password",
@@ -91,7 +109,7 @@ app.post("/register/submit", (request, response)=>{
     response.redirect("/login"); 
 
   }).catch((err) => {
-    // [TODO] HAVE TO ADD A FLASH MSG HERE
+    // [COMPLETE] FLASH MSG IS DONE
 
     // When ever there is a problem in registering re-render the "/register" route.
     let flashInfo = {
@@ -107,7 +125,7 @@ app.post("/register/submit", (request, response)=>{
 
 // ROUTES FOR ADDING IDEA 
 app.get("/ideas/add", (request, response)=>{
-  if(request.user){
+  if(typeof request.user !== undefined){
     return response.render("_addIdea", {loggedIn : true});
   }
 
@@ -123,7 +141,12 @@ app.post("/ideas/add", (request, response)=>{
 // RENDER ALL THE IDEAS
 app.get("/ideas", (request, response)=>{
   if(request.user){
-    return response.render("_Ideas", {loggedIn : true});
+    let flash = undefined;
+    if(typeof request.cookies.flashMessage !== "undefined"){
+      flash = JSON.parse(request.cookies.flashMessage);
+    }
+    response.clearCookie("flashMessage");
+    return response.render("_Ideas", {loggedIn : true, flash });
   }
   // [TODO] HAVE TO ADD A FLASH MSG HERE
   response.redirect("/login");
