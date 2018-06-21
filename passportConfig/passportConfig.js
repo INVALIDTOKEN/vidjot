@@ -7,12 +7,14 @@ const { RegisterUserModel } = require("../mongooseModel/RegisterUserModel");
 const checkForUser = function(email, password, done){
   RegisterUserModel.findOne({ email, password })
   .then((document)=>{
-    console.log("The document is : ")
-    console.log(document);
+    if(document === null){
+      console.log("Ya It ran")
+      done(null, false, {message : "Wrong email or password"})
+    }
     done(null, document);
   })
   .catch((error)=>{
-    done(null, false);
+    done(null, false, {message : "wrong email or password"});
   });
 }
 

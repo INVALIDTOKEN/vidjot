@@ -3,8 +3,8 @@ extends layout.pug
 block content
   .container 
     if flash
-      div(class="alert alert-danger" role="alert")
-        div #{flash}
+      div(class=`alert alert-${flash.type}` role="alert")
+        div #{flash.message}
     div(class="w-100")
       div(class="loginForm w-100 border p-3")
         div
@@ -23,6 +23,7 @@ block content
             div(class="form-group mb-1")
               label(for="registerPassword") Password
               input(type="password", required="true", class="form-control", id="registerPassword", autocomplete="new-password", name="password")
+              small(id="passwordHelpBlock", class="form-text text-muted") The password must be between 5 to 15 characters.  
 
             div(class="form-group mb-1")
               label(for="registerPasswordConfirm") Confirm Password

@@ -30,7 +30,6 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(cookieParser());
 
-
 // SETTING A TEMPLATE ENGINE
 app.set("view engine", "pug");
 app.set("views", "./views");
@@ -52,17 +51,26 @@ app.get("/about", (request, response)=>{
 // ROUTES FOR LOGINING IN
 
 app.get("/login", (request, response, next)=>{
+  if(request.cookies.flashMessage){
+    let flash = JSON.parse(request.cookies.flashMessage);
+    response.clearCookie("flashMessage");
+    return response.render("_login", { flash });
+  }
   response.render("_login");
 });
 
-app.post("/login", passport.authenticate("local", {
-  failureRedirect : "/login",
-  successRedirect : "/ideas"
-}));
+app.post("/login", passport.authenticate("local"), (request, response)=>{
+  response.redirect("/ideas");
+});
 
 // ROUTES FOR REGISTERING A USER
 
 app.get("/register", (request, response)=>{
+  if(request.cookies.flashMessage){
+    let flash = JSON.parse(request.cookies.flashMessage);
+    response.clearCookie("flashMessage");
+    return response.render("_register", { flash });
+  }
   response.render("_register");
 });
 
@@ -73,12 +81,26 @@ app.post("/register/submit", (request, response)=>{
   .then((result) => {
 
     // [TODO] HAVE TO ADD A FLASH MSG HERE
+    let flashInfo = {
+      registered : true,
+      message : "You have been registered now you can login using the same email and password",
+      type : "success",
+      setBy : "/register/submit"
+    };
+    response.cookie("flashMessage", JSON.stringify(flashInfo));
     response.redirect("/login"); 
 
   }).catch((err) => {
     // [TODO] HAVE TO ADD A FLASH MSG HERE
 
     // When ever there is a problem in registering re-render the "/register" route.
+    let flashInfo = {
+      registered : false,
+      message : "Sorry we have touble in registering you in please follow the correct details.",
+      type : "danger",
+      setBy : "/register/submit"
+    };
+    response.cookie("flashMessage", JSON.stringify(flashInfo));
     response.redirect("/register");
   });
 });
@@ -115,11 +137,11 @@ app.listen(port, hostName, ()=>{
 
 
 // THINGS TO START WITH 
-  // Make the mongoose registerUserModel work with proper validation
+  // Flash messages
+  // registerUserModel server validation
   // Make sure to validate both the user agent and the server
   // Use a hasing module to store the hash password
   // See what are express global variables
-  // Use passport for login route
 
 
 

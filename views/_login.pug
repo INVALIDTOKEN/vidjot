@@ -3,6 +3,12 @@ extends layout.pug
 block content
   .container 
     div(class="w-100")
+      //- if flash
+      //-   div(class=`alert alert-${flash.type}`, role="alert")
+      //-     div #{flash.message}
+      if error
+        div(class="alert alert-primary", role="alert")
+         div #{error}
       div(class="loginForm w-100 border p-3")
         div
           img(src="/static/icons/logo.png", alt="VidjotIcon")
