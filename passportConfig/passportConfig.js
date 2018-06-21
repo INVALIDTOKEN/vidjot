@@ -3,28 +3,25 @@ const LocalStrategy = require("passport-local");
 const passport = require("passport");
 const { RegisterUserModel } = require("../mongooseModel/RegisterUserModel");
 
+const flashMessage = function(message, type){
+  return JSON.stringify({ message , type });
+}
 
 const checkForUser = function(email, password, done){
+  let errorMessage = "Sorry can't log you in password or email is not correct."; 
+  let errorType = "danger";
   RegisterUserModel.findOne({ email, password })
   .then((document)=>{
+    
+    // IF THERE IS NO DOCUMENT PRESENT 
     if(document === null){
-      console.log("Ya It ran")
-      let flashInfo = {
-        loggedIn : false,
-        message : "Sorry can't log you in password or email is not correct.",
-        type : "danger"
-      }
-      return done(null, false, {message : JSON.stringify(flashInfo)});
+      return done(null, false, {message : flashMessage(errorMessage, errorType)});
     }
+
     return done(null, document);
   })
   .catch((error)=>{
-    let flashInfo = {
-      loggedIn : false,
-      message : "Sorry can't log you in password or email is not correct.",
-      type : "danger"
-    }
-    done(null, false, {message : JSON.stringify(flashInfo)});
+    done(null, false, {message : flashMessage(errorMessage, errorType)});
   });
 }
 

@@ -18,6 +18,14 @@ const port = 3000;
 const hostName = "127.0.0.1";
 const passport = require("passport");
 
+const flashMessage = function(message, type){
+  return JSON.stringify({ message , type });
+}
+
+const isAuthenticated = function(request, property){
+  return (request.user !== "undefined");
+}
+
 app.use(
   cookieSession(
     {
@@ -53,23 +61,29 @@ app.get("/about", (request, response)=>{
 // ROUTES FOR LOGINING IN
 
 app.get("/login", (request, response, next)=>{
+  // IF USER IS LOGGEDIN DON'T SHOW
   if(request.user){
-    let flashInfo = {
-      message : "You have already logged in no need to log in again.",
-      type : "info"
-    }
-    response.cookie("flashMessage", JSON.stringify(flashInfo));
+    response.cookie("flashMessage", flashMessage("You have already logged in no need to log in again.", "info"));
     return response.redirect("/ideas");
   }
 
-  let flash = request.flash("error")[0];
-  if(request.cookies.flashMessage){
-    let flash = JSON.parse(request.cookies.flashMessage);
+  // FLASH MESSAGE DEFINED BY PASSPORT
+  let pFlash = request.flash("error")[0];
+
+  // FLASH MESSAGE DEFINED BY ME
+  let flashInfo = request.cookies.flashMessage;
+
+  if(typeof flashInfo  !== "undefined"){
+
+    flashInfo = JSON.parse(flashInfo);
     response.clearCookie("flashMessage");
-    return response.render("_login", { flash });
-  }else if(flash !== undefined){
-    let flashInfo = JSON.parse(flash);
     return response.render("_login", { flash : flashInfo });
+
+  }else if(pFlash !== undefined){
+
+    let flashInfo = JSON.parse(pFlash);
+    return response.render("_login", { flash : flashInfo });
+
   }
   response.render("_login");
 });
@@ -82,16 +96,18 @@ app.post("/login", passport.authenticate("local", {
 });
 
 // ROUTES FOR REGISTERING A USER
-
 app.get("/register", (request, response)=>{
-  if(request.cookies.flashMessage){
-    let flash = JSON.parse(request.cookies.flashMessage);
+  let flashInfo = request.cookies.flashMessage;
+  if(typeof flashInfo !== "undefined"){
+    let flash = JSON.parse(flashInfo);
     response.clearCookie("flashMessage");
     return response.render("_register", { flash });
   }
   response.render("_register");
 });
 
+
+// [TODO] MAKE AN INSTANCE METHOD FOR STORING THE DOCUMENT
 app.post("/register/submit", (request, response)=>{
   console.log(request.body);
   let newUser = createUser(request.body);
@@ -99,37 +115,26 @@ app.post("/register/submit", (request, response)=>{
   .then((result) => {
 
     // [COMPLETE] FLASH MSG IS DONE
-    let flashInfo = {
-      registered : true,
-      message : "You have been registered now you can login using the same email and password",
-      type : "success",
-      setBy : "/register/submit"
-    };
-    response.cookie("flashMessage", JSON.stringify(flashInfo));
+    response.cookie("flashMessage", flashMessage("You have been registered now you can login using the same email and password", "success"));
     response.redirect("/login"); 
 
   }).catch((err) => {
     // [COMPLETE] FLASH MSG IS DONE
 
     // When ever there is a problem in registering re-render the "/register" route.
-    let flashInfo = {
-      registered : false,
-      message : "Sorry we have touble in registering you in please follow the correct details.",
-      type : "danger",
-      setBy : "/register/submit"
-    };
-    response.cookie("flashMessage", JSON.stringify(flashInfo));
+    response.cookie("flashMessage", flashMessage("Sorry we have touble in registering you in please follow the correct details.", "danger"));
     response.redirect("/register");
   });
 });
 
 // ROUTES FOR ADDING IDEA 
 app.get("/ideas/add", (request, response)=>{
-  if(typeof request.user !== undefined){
+  if(isAuthenticated(request)){
     return response.render("_addIdea", {loggedIn : true});
   }
 
-  // [TODO] HAVE TO ADD A FLASH MSG HERE
+  // [COMPLETE] FLASH MESSAGE ADDED
+  response.cookie("flashMessage", flashMessage("Sorry you have to login first.", "danger"));
   response.redirect("/login");
 });
 
@@ -140,7 +145,8 @@ app.post("/ideas/add", (request, response)=>{
 
 // RENDER ALL THE IDEAS
 app.get("/ideas", (request, response)=>{
-  if(request.user){
+
+  if(isAuthenticated(request)){
     let flash = undefined;
     if(typeof request.cookies.flashMessage !== "undefined"){
       flash = JSON.parse(request.cookies.flashMessage);
@@ -148,7 +154,9 @@ app.get("/ideas", (request, response)=>{
     response.clearCookie("flashMessage");
     return response.render("_Ideas", {loggedIn : true, flash });
   }
-  // [TODO] HAVE TO ADD A FLASH MSG HERE
+
+  // [COMPLETE] FLASH MESSAGE ADDED
+  response.cookie("flashMessage", flashMessage("Sorry you have to login first.", "danger"));
   response.redirect("/login");
 });
 
