@@ -1,0 +1,17 @@
+extends layout.pug
+
+block content
+  .container
+    div(class="card card-body", style="max-width: 950px; margin: 0 auto;")
+      h1 Update Idea
+      form(action=`/idea/update/${document._id}`, method="POST")
+        div(class="form-group")
+          label(for="ideaTitle") Title
+          input(type="text", autofocus=true, required="true", id="ideaTitle", class="form-control", name="title", value=`${document.title}`)
+        div(class="form-group")
+          label(for="ideaDetails") Details
+          textarea(name="details", required="true", id="ideaDetails" class="form-control") #{document.details}
+        div
+        button(type="submit", style="width:150px;", class="btn btn-primary") Update Idea  
+      div(class="mt-2")
+        a(href="/ideas", class="btn btn-primary", style="width : 150px;") See All Ideas

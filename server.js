@@ -142,7 +142,7 @@ app.get("/idea/delete/:id", (request, response) => {
     let loggedInUser = request.user._id;
     IdeaModel.findOneAndRemove({ _id: objectId, writtenBy: loggedInUser })
       .then((document) => {
-        if(document === null){
+        if (document === null) {
           response.cookie("flashMessage", custormFlash.createFlashInfo("Sorry Either the document you are looking for is not present or you are not autherized to delete that document.", "danger"));
           return response.redirect("/ideas");
         }
@@ -151,9 +151,52 @@ app.get("/idea/delete/:id", (request, response) => {
         return response.redirect("/ideas");
       });
   } else {
-
+    // [TODO] ADD A FLASH MESSAGE HERE
+    return response.redirect("/login");
   }
   // 
+});
+
+
+// UPDATE AN IDEA
+app.get("/idea/update/:id", (request, response) => {
+
+  if (isAuthenticated(request)) {
+
+    let loggedInUser = request.user._id;
+    let { id } = request.params;
+    IdeaModel.findOne({ _id: id, writtenBy: loggedInUser })
+      .then((document)=>{
+        if (document === null) {
+          response.cookie("flashMessage", custormFlash.createFlashInfo("Sorry Either the document you are updating is not present or you are not autherized to update that document.", "danger"));
+          return response.redirect("/ideas");
+        }
+
+        console.log(document);
+        return response.render("_updateIdea", {loggedIn : true, document : document });
+
+      });
+      // [TODO] add a catch block here
+
+  } else {
+    // [TODO] ADD A FLASH MESSAGE HERE
+    return response.redirect("/login");
+  }
+
+});
+
+app.post("/idea/update/:id", (request, response)=>{
+
+  IdeaModel.findOneAndUpdate({ writtenBy : request.user._id, _id : request.params.id }, { title : request.body.title, details : request.body.details }, { new : true })
+  .then((document)=>{
+    if (document === null) {
+      response.cookie("flashMessage", custormFlash.createFlashInfo("Sorry Either the document you are updating is not present or you are not autherized to update that document.", "danger"));
+      return response.redirect("/ideas");
+    }
+
+    response.cookie("flashMessage", custormFlash.createFlashInfo("Your idea has been updated", "success"));
+    return response.redirect(`/ideas/show/${document._id}`);
+  });
 });
 
 app.listen(port, hostName, () => {
