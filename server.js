@@ -114,10 +114,13 @@ app.get("/ideas/show/:id", (request, response) => {
           return response.render("_showIdea", { flash: { message: "Incorrect Id given", type: "danger" }, loggedIn: true, renderIdea: false });
         }
 
+        // [TODO] LOOK OUT FOR ANOTHER WAY TO DO THIS
         let flashMessage = custormFlash.checkCustomFlashMsg(request);
         if (!flashMessage.present) {
+          // IF NO FLASH MESSAGE PRESENT
           flashMessage = false;
         } else {
+          // IF FLASH MESSAGE PRESENT
           flashMessage = flashMessage.flashInfo;
         }
 
@@ -166,17 +169,17 @@ app.get("/idea/update/:id", (request, response) => {
     let loggedInUser = request.user._id;
     let { id } = request.params;
     IdeaModel.findOne({ _id: id, writtenBy: loggedInUser })
-      .then((document)=>{
+      .then((document) => {
         if (document === null) {
           response.cookie("flashMessage", custormFlash.createFlashInfo("Sorry Either the document you are updating is not present or you are not autherized to update that document.", "danger"));
           return response.redirect("/ideas");
         }
 
         console.log(document);
-        return response.render("_updateIdea", {loggedIn : true, document : document });
+        return response.render("_updateIdea", { loggedIn: true, document: document });
 
       });
-      // [TODO] add a catch block here
+    // [TODO] add a catch block here
 
   } else {
     // [TODO] ADD A FLASH MESSAGE HERE
@@ -185,18 +188,33 @@ app.get("/idea/update/:id", (request, response) => {
 
 });
 
-app.post("/idea/update/:id", (request, response)=>{
+app.post("/idea/update/:id", (request, response) => {
 
-  IdeaModel.findOneAndUpdate({ writtenBy : request.user._id, _id : request.params.id }, { title : request.body.title, details : request.body.details }, { new : true })
-  .then((document)=>{
-    if (document === null) {
-      response.cookie("flashMessage", custormFlash.createFlashInfo("Sorry Either the document you are updating is not present or you are not autherized to update that document.", "danger"));
-      return response.redirect("/ideas");
-    }
+  // [TODO] CHECK USER AUTHENTICATION
+  if (isAuthenticated(request)) {
+    IdeaModel.findOneAndUpdate({ writtenBy: request.user._id, _id: request.params.id }, { title: request.body.title, details: request.body.details }, { new: true })
+      .then((document) => {
+        if (document === null) {
+          response.cookie("flashMessage", custormFlash.createFlashInfo("Sorry Either the document you are updating is not present or you are not autherized to update that document.", "danger"));
+          return response.redirect("/ideas");
+        }
 
-    response.cookie("flashMessage", custormFlash.createFlashInfo("Your idea has been updated", "success"));
-    return response.redirect(`/ideas/show/${document._id}`);
-  });
+        response.cookie("flashMessage", custormFlash.createFlashInfo("Your idea has been updated", "success"));
+        return response.redirect(`/ideas/show/${document._id}`);
+      })
+      .catch((error)=>{
+        response.cookie("flashMessage", custormFlash.createFlashInfo("Sorry Either the document you are updating is not present or you are not autherized to update that document.", "danger"));
+        return response.redirect("/ideas");
+      });
+  }else{
+    response.cookie("flashMessage", custormFlash.createFlashInfo("You have to login first.", "danger"));
+    return response.redirect("/login");
+  }
+});
+// [TODO] COMPLETE LOGOUT ROUTE
+app.get("/logout", (request, response)=>{
+  request.logout();
+  response.redirect("/");
 });
 
 app.listen(port, hostName, () => {
@@ -209,8 +227,6 @@ app.listen(port, hostName, () => {
 // THINGS TO START WITH 
   // ideas submit server validation [FIRST THING IN THE MORNING]
   // register user unique email msg
-  // complete /ideas route 
-  // complete update and delete functionality 
   // Use a hashing module to store the hash password
 
 
