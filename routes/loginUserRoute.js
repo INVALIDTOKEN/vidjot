@@ -11,6 +11,11 @@ router.get("/", (request, response, next)=>{
     return response.redirect("/ideas");
   }
 
+
+  // [INFO] ABOUT " request.flash('error') "
+    // if there is an error in login, the value is : [object]
+    // you can read the value only once and if there is no error message to show then the value is : [] 
+
   // FLASH MESSAGE DEFINED BY PASSPORT
   let pFlash = request.flash("error")[0];
 

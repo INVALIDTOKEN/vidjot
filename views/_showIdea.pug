@@ -1,0 +1,18 @@
+extends layout.pug
+
+block content
+  .container
+    if flash
+      div(class=`alert alert-${flash.type}`, role="alert")
+        div #{flash.message}
+    if renderIdea
+      div(class="card card-body")
+        h1 #{idea.title}
+        p #{idea.details}
+        form(action="/idea/delete", method="DELETE")
+          button(type="submit" class="btn btn-danger") Delete
+      
+    div(class="mt-2")
+      a(href="/ideas/add", class="btn btn-primary", style="width : 200px;") Add Another Idea
+    div(class="mt-2")
+      a(href="/ideas", class="btn btn-primary", style="width : 200px;") See All Ideas

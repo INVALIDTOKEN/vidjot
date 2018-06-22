@@ -13,6 +13,8 @@ const ideaDetails = function(user, idea){
   };
 }
 
+// [route] "/ideas/add"
+
 const isAuthenticated = function(request, property){
   return (typeof request.user !== "undefined");
 }
@@ -23,14 +25,15 @@ router.get("/", (request, response)=>{
   }
 
   // [COMPLETE] FLASH MESSAGE ADDED
-  response.cookie("flashMessage", custormFlash.createFlashInfo("Sorry you have to login first.", "danger"));
+  response.cookie("flashMessage", customFlash.createFlashInfo("Sorry you have to login first.", "danger"));
   response.redirect("/login");
 });
 
 router.post("/", (request, response)=>{
   createIdea(ideaDetails(request.user, request.body)).save()
   .then((document)=>{
-    response.send(document);
+    response.cookie("flashMessage", customFlash.createFlashInfo("Your Idea has been added to the database", "info"));
+    response.redirect(`/ideas/show/${document._id}`);
   });
 });
 

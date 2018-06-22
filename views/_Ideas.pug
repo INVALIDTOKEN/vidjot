@@ -5,8 +5,16 @@ block content
     if flash
       div(class=`alert alert-${flash.type}`, role="alert")
         div #{flash.message}
-    div(class="card card-body")
-      h1 Video Ideas
-      p This is a video ideas
-      form(action="/idea/delete", method="DELETE")
-        button(type="submit" class="btn btn-danger") Delete
+    if renderIdea
+      div(class="w-100")
+        each object in ideas
+          div(class="card mt-2 card-body")
+            h1 #{object.title}
+            p #{object.details}
+            p(class="text-muted") Added On #{object.date}
+            div
+              a(href=`/idea/delete/${object._id}`, class="btn btn-danger mr-2") Delete
+              a(href=`/idea/update/${object._id}`, class="btn btn-dark") Update 
+    else
+      div(class="alert alert-info", role="alert")
+        div You have no Ideas to show, add some ideas

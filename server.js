@@ -8,6 +8,7 @@ const { bodyParser } = require("./bodyParser.js");
 const { RegisterUserModel } = require("./mongooseModel/RegisterUserModel.js");
 const { createUser } = require("./mongooseDocument/registerUserDoc.js");
 const { createIdea } = require("./mongooseDocument/ideaDoc");
+const { IdeaModel } = require("./mongooseModel/IdeaSchema.js");
 const querystring = require("querystring");
 const cookieSession = require("cookie-session");
 const cookieParser = require("cookie-parser");
@@ -26,15 +27,15 @@ const { registerUserRoute } = require("./routes/registerUserRoute.js");
 const { loginUserRoute } = require("./routes/loginUserRoute.js");
 const { addIdeaRoute } = require("./routes/addIdeaRoute.js");
 
-const isAuthenticated = function(request, property){
+const isAuthenticated = function (request) {
   return (typeof request.user !== "undefined");
 }
 
 app.use(
   cookieSession(
     {
-      maxAge : 24*60*60*1000,
-      keys : ["kitty kat"]
+      maxAge: 24 * 60 * 60 * 1000,
+      keys: ["kitty kat"]
     }
   )
 );
@@ -55,10 +56,10 @@ app.use("/", bodyParser);
 app.use("/static", express.static("./public"));
 
 
-app.get("/", (request, response)=>{
+app.get("/", (request, response) => {
   response.render("_home");
 });
-app.get("/about", (request, response)=>{
+app.get("/about", (request, response) => {
   response.render("_about");
 });
 
@@ -73,24 +74,66 @@ app.use("/login", loginUserRoute);
 app.use("/ideas/add", addIdeaRoute);
 
 // RENDER ALL THE IDEAS
-app.get("/ideas", (request, response)=>{
+app.get("/ideas", (request, response) => {
 
-  if(isAuthenticated(request)){
+  if (isAuthenticated(request)) {
     let flashInfo = undefined;
     let flashMessage = custormFlash.checkCustomFlashMsg(request);
-    if(flashMessage.present){
+
+    if (flashMessage.present) {
       flashInfo = flashMessage.flashInfo;
     }
     response.clearCookie("flashMessage");
-    return response.render("_Ideas", {loggedIn : true, flash : flashInfo });
-  }
 
-  // [COMPLETE] FLASH MESSAGE ADDED
-  response.cookie("flashMessage", custormFlash.createFlashInfo("Sorry you have to login first.", "danger"));
-  response.redirect("/login");
+    IdeaModel.find({ writtenBy: request.user._id})
+    .then((documents) => {
+      if(documents.length === 0){
+        return response.render("_ideas", { flash : flashInfo, loggedIn : true, renderIdea : false})
+      }
+      return response.render("_ideas", {flash : flashInfo, loggedIn : true, renderIdea : true, ideas : documents.reverse()});
+    });
+    // return response.render("_Ideas", { loggedIn: true, flash: flashInfo });
+  } else {
+    // [COMPLETE] FLASH MESSAGE ADDED
+    response.cookie("flashMessage", custormFlash.createFlashInfo("Sorry you have to login first.", "danger"));
+    response.redirect("/login");
+  }
 });
 
-app.listen(port, hostName, ()=>{
+
+// RENDERING A SINGLE IDEA
+app.get("/ideas/show/:id", (request, response) => {
+
+  if (isAuthenticated(request)) {
+    let id = request.params.id;
+    IdeaModel.findById(id)
+      .then((document) => {
+
+        // IF THERE IS NO DOCUMENT
+        if (document === null) {
+          return response.render("_showIdea", { flash: { message: "Incorrect Id given", type: "danger" }, loggedIn: true, renderIdea: false });
+        }
+
+        let flashMessage = custormFlash.checkCustomFlashMsg(request);
+        if (!flashMessage.present) {
+          flashMessage = false;
+        } else {
+          flashMessage = flashMessage.flashInfo;
+        }
+
+        response.clearCookie("flashMessage");
+        return response.render("_showIdea", { flash: flashMessage, loggedIn: true, renderIdea: true, idea: document });
+
+      })
+      .catch((error) => {
+        return response.render("_showIdea", { flash: { message: "Incorrect Id given", type: "danger" }, loggedIn: true, renderIdea: false });
+      });
+  } else {
+    response.redirect("/login");
+  }
+});
+
+app.listen(port, hostName, () => {
   console.log(`Server running at ${hostName}:${port}`);
 });
 
@@ -98,11 +141,11 @@ app.listen(port, hostName, ()=>{
 
 
 // THINGS TO START WITH 
-  // Flash messages [COMPLETE]
-  // registerUserModel server validation 
-  // Make sure to validate both the user agent and the server
+  // ideas submit server validation [FIRST THING IN THE MORNING]
+  // register user unique email msg
+  // complete /ideas route 
+  // complete update and delete functionality 
   // Use a hashing module to store the hash password
-  // See what are express global variables [NO NEED]
 
 
 
