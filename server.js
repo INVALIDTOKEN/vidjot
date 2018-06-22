@@ -85,13 +85,13 @@ app.get("/ideas", (request, response) => {
     }
     response.clearCookie("flashMessage");
 
-    IdeaModel.find({ writtenBy: request.user._id})
-    .then((documents) => {
-      if(documents.length === 0){
-        return response.render("_ideas", { flash : flashInfo, loggedIn : true, renderIdea : false})
-      }
-      return response.render("_ideas", {flash : flashInfo, loggedIn : true, renderIdea : true, ideas : documents.reverse()});
-    });
+    IdeaModel.find({ writtenBy: request.user._id })
+      .then((documents) => {
+        if (documents.length === 0) {
+          return response.render("_ideas", { flash: flashInfo, loggedIn: true, renderIdea: false })
+        }
+        return response.render("_ideas", { flash: flashInfo, loggedIn: true, renderIdea: true, ideas: documents.reverse() });
+      });
     // return response.render("_Ideas", { loggedIn: true, flash: flashInfo });
   } else {
     // [COMPLETE] FLASH MESSAGE ADDED
@@ -131,6 +131,29 @@ app.get("/ideas/show/:id", (request, response) => {
   } else {
     response.redirect("/login");
   }
+});
+
+
+// DELETING AN IDEA
+
+app.get("/idea/delete/:id", (request, response) => {
+  if (isAuthenticated(request)) {
+    let objectId = request.params.id;
+    let loggedInUser = request.user._id;
+    IdeaModel.findOneAndRemove({ _id: objectId, writtenBy: loggedInUser })
+      .then((document) => {
+        if(document === null){
+          response.cookie("flashMessage", custormFlash.createFlashInfo("Sorry Either the document you are looking for is not present or you are not autherized to delete that document.", "danger"));
+          return response.redirect("/ideas");
+        }
+
+        response.cookie("flashMessage", custormFlash.createFlashInfo("Document has been successfully deleted.", "success"));
+        return response.redirect("/ideas");
+      });
+  } else {
+
+  }
+  // 
 });
 
 app.listen(port, hostName, () => {
